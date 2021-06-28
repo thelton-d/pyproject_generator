@@ -903,6 +903,13 @@ makefile() {
         "\t\t\t && sed -i -e \\\\\"s/release = '0.1.0'/release = __version__/g\\\\\" conf.py \\\\" \
         "\t\t\t && sed -i -e \\\\\"s/alabaster/sphinx_rtd_theme/g\\\\\" conf.py \\\\" \
         "\t\t\t && sed -i -e 's/[ \\\\t]*\$\$//g' conf.py \\\\" \
+        "\t\t\t && sed -i -e \\\\\"s/'_build', 'Thumbs.db'/'_build', 'links.rst', 'Thumbs.db'/\\\\\" conf.py \\\\" \
+        "\t\t\t && sed -i -e \\\\\"/exclude_patterns/a \\\\" \
+        "\t\t\t\trest_epilog = '' \\\\" \
+        "\t\t\t\t\\\\n# Read all link targets from one file \\\\" \
+        "\t\t\t\t\\\\nwith open('links.rst') as f: \\\\" \
+        "\t\t\t\t\\\\n    rst_epilog += f.read()/\\\\\" conf.py \\\\" \
+        "\t\t\t && touch _static/links.rst \\\\" \
         "\t\t\t && sed -i -e \\\\\"/html_static_path/a html_css_files = ['custom.css']\\\\\" conf.py \\\\" \
         "\t\t\t && echo >> conf.py \\\\" \
         "\t\t\t && printf '%s\\\\n' \\\\" \
