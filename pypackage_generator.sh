@@ -839,7 +839,7 @@ makefile() {
         "\t\t\tgrep \"^__version__\" | \\\\" \
         "\t\t\tcut -d = -f 2))" \
         "JUPYTER=lab" \
-        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*')\"" \
+        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/')\"" \
         "NOTEBOOK_DELAY=10" \
         "" \
         ".PHONY: docs format-style upgrade-packages" \
