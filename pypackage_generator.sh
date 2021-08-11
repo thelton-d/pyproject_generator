@@ -465,7 +465,7 @@ docker_compose() {
         "    networks:" \
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
-        "      - 27017:27017" \
+        "      - '27017:27017'" \
         "    restart: always" \
         "    secrets:" \
         "      - db-init-password" \
@@ -480,7 +480,7 @@ docker_compose() {
         "    networks:"\
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
-        "      - 8080:80" \
+        "      - '8080:80'" \
         "    restart: always" \
         "    volumes:" \
         "      - ../docs/_build/html:/usr/share/nginx/html:ro" \
@@ -510,7 +510,7 @@ docker_compose() {
         "    networks:"\
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
-        "      - 5432:5432" \
+        "      - '5432:5432'" \
         "    restart: always" \
         "    secrets:" \
         "      - db-database" \
@@ -531,7 +531,7 @@ docker_compose() {
         "    networks:"\
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
-        "      - 8888:8080" \
+        "      - '8888:8080'" \
         "    restart: always" \
         "    secrets:" \
         "      - db-database" \
