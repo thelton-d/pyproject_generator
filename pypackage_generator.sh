@@ -534,6 +534,7 @@ docker_compose() {
         "      - 8888:8080" \
         "    restart: always" \
         "    secrets:" \
+        "      - db-database" \
         "      - db-password" \
         "      - db-username" \
         "    tty: true" \
@@ -905,11 +906,11 @@ makefile() {
         "\t\t\t && sed -i -e 's/[ \\\\t]*\$\$//g' conf.py \\\\" \
         "\t\t\t && sed -i -e \\\\\"s/'_build', 'Thumbs.db'/'_build', 'links.rst', 'Thumbs.db'/\\\\\" conf.py \\\\" \
         "\t\t\t && sed -i -e \\\\\"/exclude_patterns/a \\\\" \
-        "\t\t\t\trest_epilog = '' \\\\" \
+        "\t\t\t\trst_epilog = '' \\\\" \
         "\t\t\t\t\\\\n# Read all link targets from one file \\\\" \
         "\t\t\t\t\\\\nwith open('links.rst') as f: \\\\" \
-        "\t\t\t\t\\\\n    rst_epilog += f.read()/\\\\\" conf.py \\\\" \
-        "\t\t\t && touch _static/links.rst \\\\" \
+        "\t\t\t\t\\\\n    rst_epilog += f.read()\\\\\" conf.py \\\\" \
+        "\t\t\t && touch links.rst \\\\" \
         "\t\t\t && sed -i -e \\\\\"/html_static_path/a html_css_files = ['custom.css']\\\\\" conf.py \\\\" \
         "\t\t\t && echo >> conf.py \\\\" \
         "\t\t\t && printf '%s\\\\n' \\\\" \
@@ -918,7 +919,12 @@ makefile() {
 				"\t\t\t\t'}' >> '_static/custom.css' \\\\" \
         "\t\t\t && sed -i \\\\\"/   :caption: Contents:/a \\\\" \
         "\t\t\t\t\\\\\\\\\\\\\\\\\\\\n   package\\\\\" \\\\" \
-        "\t\t\t\tindex.rst\"" \
+        "\t\t\t\tindex.rst \\\\" \
+        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && chown \$(USER) conf.py \\\\" \
+        "\t\t\t && chown \$(USER) index.rst \\\\" \
+        "\t\t\t && chown \$(USER) links.rst \\\\" \
+        "\t\t\t && chown \$(USER) _static/custom.css\"" \
         "\tprintf \"%s\\\\n\" \\\\" \
         "\t\t\"Package Modules\" \\\\" \
         "\t\t\"===============\" \\\\" \
@@ -1047,8 +1053,9 @@ makefile() {
         "\t\t\t && printf '%s' \"password\" >> 'db_init_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"admin\" >> 'db_init_username.txt' \\\\" \
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
-        "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \"" \
-        "\tsudo chown -R \$(USER) docker/secrets" \
+        "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
+        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && chown \$(USER) .\"" \
         "" \
         "snakeviz: docker-up profile snakeviz-server" \
         "\tsleep 0.5" \
