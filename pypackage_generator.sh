@@ -963,6 +963,9 @@ makefile() {
         "\tdocker container exec \$(PROJECT)_python yapf -i -p -r --style \"pep8\" \${SRC_DIR}" \
         "" \
         "getting-started: lambda-image secret_templates docs-init" \
+        "\tmkdir cache" \
+        "\tmkdir htmlcov" \
+        "\tmkdir profiles" \
         "\t\$(warning )" \
         "\t\$(warning )" \
         "\t\$(warning )" \
