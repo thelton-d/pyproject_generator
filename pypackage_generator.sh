@@ -1052,8 +1052,9 @@ makefile() {
         "\t\t\t && printf '%s' \"password\" >> 'db_init_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"admin\" >> 'db_init_username.txt' \\\\" \
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
-        "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \"" \
-        "\tsudo chown -R \$(USER) docker/secrets" \
+        "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
+        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && chown \$(USER) .\"" \
         "" \
         "snakeviz: docker-up profile snakeviz-server" \
         "\tsleep 0.5" \
