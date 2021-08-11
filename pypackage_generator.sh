@@ -918,7 +918,12 @@ makefile() {
 				"\t\t\t\t'}' >> '_static/custom.css' \\\\" \
         "\t\t\t && sed -i \\\\\"/   :caption: Contents:/a \\\\" \
         "\t\t\t\t\\\\\\\\\\\\\\\\\\\\n   package\\\\\" \\\\" \
-        "\t\t\t\tindex.rst\"" \
+        "\t\t\t\tindex.rst \\\\" \
+        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && chown \$(USER) conf.py \\\\" \
+        "\t\t\t && chown \$(USER) index.rst \\\\" \
+        "\t\t\t && chown \$(USER) links.rst \\\\" \
+        "\t\t\t && chown \$(USER) _static/custom.css\"" \
         "\tprintf \"%s\\\\n\" \\\\" \
         "\t\t\"Package Modules\" \\\\" \
         "\t\t\"===============\" \\\\" \
