@@ -914,9 +914,9 @@ makefile() {
         "\t\t\t && sed -i -e \\\\\"/html_static_path/a html_css_files = ['custom.css']\\\\\" conf.py \\\\" \
         "\t\t\t && echo >> conf.py \\\\" \
         "\t\t\t && printf '%s\\\\n' \\\\" \
-			 	"\t\t\t\t'.wy-nav-content {' \\\\" \
-				"\t\t\t\t'  max-width: 1200px !important;' \\\\" \
-				"\t\t\t\t'}' >> '_static/custom.css' \\\\" \
+        "\t\t\t\t'.wy-nav-content {' \\\\" \
+        "\t\t\t\t'  max-width: 1200px !important;' \\\\" \
+        "\t\t\t\t'}' >> '_static/custom.css' \\\\" \
         "\t\t\t && sed -i \\\\\"/   :caption: Contents:/a \\\\" \
         "\t\t\t\t\\\\\\\\\\\\\\\\\\\\n   package\\\\\" \\\\" \
         "\t\t\t\tindex.rst \\\\" \
@@ -1108,7 +1108,7 @@ makefile() {
         "\tdocker container exec \$(PROJECT)_python py.test \$(PROJECT)" \
         "" \
         "test-coverage: test" \
-	      "\t\${BROWSER} htmlcov/index.html"\
+        "\t\${BROWSER} htmlcov/index.html"\
         "" \
         "upgrade-packages: docker-up" \
         "ifeq (\"\${PKG_MANAGER}\", \"pip\")" \
@@ -1141,8 +1141,9 @@ makefile() {
         "\t\t\t\t&& sed '/[ ]*pgadmin:/,/postgresql\/data/d' docker/docker-compose.yaml | \\\\" \
         "\t\t\t\t\tsed '/- postgres/d' | \\\\" \
         "\t\t\t\t\tcat -s > temp \\\\" \
-        "\t\t\t\t&& mv temp docker/docker-compose.yaml\"" \
-        "\tsudo chown \$(USER) docker/docker-compose.yaml" \
+        "\t\t\t\t&& mv temp docker/docker-compose.yaml \\\\" \
+        "\t\t\t\t&& useradd \$(USER) \\\\" \
+        "\t\t\t\t&& chown \$(USER) docker/docker-compose.yaml\"" \
         "" \
         "use-postres:" \
         "\tdocker container run --rm \\\\" \
@@ -1154,8 +1155,9 @@ makefile() {
         "\t\t\t\t&& sed '/[ ]*mongodb:/,/mongodb\/data/d' docker/docker-compose.yaml | \\\\" \
         "\t\t\t\t\tsed '/- mongodb/d' | \\\\" \
         "\t\t\t\t\tcat -s > temp \\\\" \
-        "\t\t\t\t&& mv temp docker/docker-compose.yaml\"" \
-        "\tsudo chown \$(USER) docker/docker-compose.yaml" \
+        "\t\t\t\t&& mv temp docker/docker-compose.yaml \\\\" \
+        "\t\t\t\t&& useradd \$(USER) \\\\" \
+        "\t\t\t\t&& chown \$(USER) docker/docker-compose.yaml\"" \
         "" \
         > "${MAIN_DIR}${FILE_SEP}Makefile"
 }
