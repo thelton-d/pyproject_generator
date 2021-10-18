@@ -625,20 +625,19 @@ docker_pytorch() {
 
 docker_tensorflow() {
     printf "%b\n" \
-        "FROM nvcr.io/nvidia/tensorflow:21.04-tf2-py3" \
+        "FROM nvcr.io/nvidia/tensorflow:21.09-tf2-py3" \
         "" \
         "WORKDIR /usr/src/${SOURCE_DIR}" \
         "" \
         "COPY . ." \
         "" \
-        "RUN cd /opt \\\\" \
-        "\t&& apt-get update -y \\\\" \
-        "\t#&& apt-get upgrade -y \\\\  Do not upgrade NVIDIA image OS" \
-        "\t&& apt-get install -y \\\\" \
-        "\t\tapt-utils \\\\" \
-        "\t&& cd /usr/src/${SOURCE_DIR} \\\\" \
-        "\t&& pip install --upgrade pip \\\\" \
-        "\t&& pip install -e .[all] \\\\" \
+        "RUN pip install -e .[tensorflow] \\\\" \
+        "\t# Do not upgrade NVIDIA image" \
+        "\t# && apt-get update -y \\\\" \
+        "\t# && apt-get upgrade -y \\\\" \
+        "\t# && apt-get install -y \\\\" \
+        "\t\t# apt-utils \\\\" \
+        "\t# && pip install -r requirements_tensorflow.txt \\\\" \
         "\t&& rm -rf /tmp/* \\\\" \
         "\t&& rm -rf /var/lib/apt/lists/* \\\\" \
         "\t&& apt-get clean" \
