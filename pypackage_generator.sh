@@ -844,8 +844,7 @@ makefile() {
         "USER=\$(shell echo \$\${USER%%@*})" \
         "VERSION=\$(shell cat ${SOURCE_DIR}/__init__.py | grep \"^__version__\" | cut -d = -f 2)" \
         "" \
-        "JUPYTER=notebook" \
-        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/' | sed -e 's/tree/lab/')\"" \
+        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter notebook list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/' | sed -e 's/tree/lab/')\"" \
         "NOTEBOOK_DELAY=10" \
         "NOTEBOOK_NAME=\$(USER)_notebook_\$(PORT)" \
         "" \
@@ -1009,7 +1008,7 @@ makefile() {
         "\t\t-p \$(PORT):\$(PORT) \\\\" \
         "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
         "\t\t\$(PROJECT)_python_\$(FRAMEWORK) \\\\" \
-        "\t\t/bin/bash -c \"jupyter \$(JUPYTER) \\\\" \
+        "\t\t/bin/bash -c \"jupyter lab \\\\" \
         "\t\t\t\t--allow-root \\\\" \
         "\t\t\t\t--ip=0.0.0.0 \\\\" \
         "\t\t\t\t--no-browser \\\\" \
