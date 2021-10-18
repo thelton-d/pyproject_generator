@@ -923,7 +923,7 @@ makefile() {
         "\t\t\t && sed -i \\\\\"/   :caption: Contents:/a \\\\" \
         "\t\t\t\t\\\\\\\\\\\\\\\\\\\\n   package\\\\\" \\\\" \
         "\t\t\t\tindex.rst \\\\" \
-        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
         "\t\t\t && chown \$(USER) conf.py \\\\" \
         "\t\t\t && chown \$(USER) index.rst \\\\" \
         "\t\t\t && chown \$(USER) links.rst \\\\" \
@@ -1061,7 +1061,7 @@ makefile() {
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
         "\t\t\t && printf '%s' \$(PROJECT) >> 'package.txt' \\\\" \
-        "\t\t\t && useradd \$(USER) \\\\" \
+        "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
         "\t\t\t && chown \$(USER) .\"" \
         "" \
         "snakeviz: docker-up profile snakeviz-server" \
@@ -1146,7 +1146,7 @@ makefile() {
         "\t\t\t\t\tsed '/- postgres/d' | \\\\" \
         "\t\t\t\t\tcat -s > temp \\\\" \
         "\t\t\t\t&& mv temp docker/docker-compose.yaml \\\\" \
-        "\t\t\t\t&& useradd \$(USER) \\\\" \
+        "\t\t\t\t&& useradd \$(USER) &> /dev/null || true \\\\" \
         "\t\t\t\t&& chown \$(USER) docker/docker-compose.yaml\"" \
         "" \
         "use-postres:" \
@@ -1160,7 +1160,7 @@ makefile() {
         "\t\t\t\t\tsed '/- mongodb/d' | \\\\" \
         "\t\t\t\t\tcat -s > temp \\\\" \
         "\t\t\t\t&& mv temp docker/docker-compose.yaml \\\\" \
-        "\t\t\t\t&& useradd \$(USER) \\\\" \
+        "\t\t\t\t&& useradd \$(USER) &> /dev/null || true \\\\" \
         "\t\t\t\t&& chown \$(USER) docker/docker-compose.yaml\"" \
         "" \
         > "${MAIN_DIR}${FILE_SEP}Makefile"
