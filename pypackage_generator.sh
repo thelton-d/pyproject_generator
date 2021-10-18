@@ -967,7 +967,7 @@ makefile() {
         "format-style: docker-up" \
         "\tdocker container exec \$(PROJECT)_python yapf -i -p -r --style \"pep8\" \${SRC_DIR}" \
         "" \
-        "getting-started: secret_templates docs-init" \
+        "getting-started: secret-templates docs-init" \
         "\tmkdir cache" \
         "\tmkdir htmlcov" \
         "\tmkdir profiles" \
@@ -1030,7 +1030,7 @@ makefile() {
         "\tdocker container exec -it \$(PROJECT)_postgres \\\\" \
         "\t\tpsql -U \${POSTGRES_USER} \$(PROJECT)" \
         "" \
-        "secret_templates:" \
+        "secret-templates:" \
         "	docker container run --rm \\\\" \
         "\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
         "\t-w /usr/src/\$(PROJECT)/docker/secrets \\\\" \
@@ -1843,8 +1843,8 @@ utils() {
         '    """' \
         "    Read Docker secret file." \
         "" \
-        "    :param secret_name: name of secrete to retrieve" \
-        "    :return: contents of secrete file" \
+        "    :param secret_name: name of secret to retrieve" \
+        "    :return: contents of secret file" \
         '    """' \
         "    try:" \
         "        with open(f'/run/secrets/{secret_name}', 'r') as f:" \
