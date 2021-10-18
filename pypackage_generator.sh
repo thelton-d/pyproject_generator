@@ -517,15 +517,17 @@ docker_compose() {
         "      - ${MAIN_DIR}-db:/var/lib/postgresql/data" \
         "" \
         "  python:" \
-        "    container_name: ${MAIN_DIR}_python" \
-        "    image: ${MAIN_DIR}_python" \
         "    build:" \
         "      context: .." \
-        "      dockerfile: docker/python.Dockerfile" \
-        "    depends_on:" \
-        "      - mongodb" \
-        "      - postgres" \
-        "    networks:"\
+        "      shm_size: 1g" \
+        "    container_name: ${MAIN_DIR}_python" \
+        "    deploy:" \
+        "      resources:" \
+        "        reservations:" \
+        "          devices:" \
+        "            - capabilities: [gpu]" \
+        "    ipc: host" \
+        "    networks:" \
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
         "      - '8888:8080'" \
@@ -535,7 +537,10 @@ docker_compose() {
         "      - db-password" \
         "      - db-username" \
         "      - package" \
+        "    shm_size: 16g" \
         "    tty: true" \
+        "    ulimits:" \
+        "      memlock: -1" \
         "    volumes:" \
         "      - ..:/usr/src/${MAIN_DIR}" \
         "      - ${MAIN_DIR}-secret:/usr/src/${MAIN_DIR}/.git" \
