@@ -604,18 +604,25 @@ docker_python() {
 
 docker_pytorch() {
     printf "%b\n" \
-        "FROM pytorch/pytorch" \
+        "FROM nvcr.io/nvidia/pytorch:21.09-py3" \
+        "" \
+        "ENV TORCH_HOME=/usr/src/warehouse/cache" \
         "" \
         "WORKDIR /usr/src/${MAIN_DIR}" \
         "" \
         "COPY . ." \
         "" \
-        "RUN conda update -y conda \\\\" \
-        "\t&& conda update -y --all \\\\" \
-        "\t&& while read requirement; do conda install --yes \${requirement}; done < requirements.txt \\\\" \
-        "\t&& conda install -y pytorch torchvision -c pytorch \\\\" \
-        "\t&& pip install -e .[build,data,database,docs,notebook,profile,test] \\\\" \
-        "$(common_image)" \
+        "RUN pip install -e .[pytorch] \\\\" \
+        "\t# Do not update NVIDIA image" \
+        "\t# && apt-get update -y \\\\" \
+        "\t# && apt-get upgrade -y \\\\" \
+        "\t# && apt-get install -y \\\\" \
+        "\t\t# apt-utils \\\\" \
+        "\t# && conda update -y conda \\\\" \
+        "\t# && while read requirement; do conda install --yes \${requirement}; done < requirements_pytorch.txt \\\\" \
+        "\t&& rm -rf /tmp/* \\\\" \
+        "\t&& rm -rf /var/lib/apt/lists/* \\\\" \
+        "\t&& apt-get clean \\\\" \
         "" \
         "CMD [ \"/bin/bash\" ]" \
         "" \
@@ -625,20 +632,19 @@ docker_pytorch() {
 
 docker_tensorflow() {
     printf "%b\n" \
-        "FROM nvcr.io/nvidia/tensorflow:21.04-tf2-py3" \
+        "FROM nvcr.io/nvidia/tensorflow:21.09-tf2-py3" \
         "" \
         "WORKDIR /usr/src/${SOURCE_DIR}" \
         "" \
         "COPY . ." \
         "" \
-        "RUN cd /opt \\\\" \
-        "\t&& apt-get update -y \\\\" \
-        "\t#&& apt-get upgrade -y \\\\  Do not upgrade NVIDIA image OS" \
-        "\t&& apt-get install -y \\\\" \
-        "\t\tapt-utils \\\\" \
-        "\t&& cd /usr/src/${SOURCE_DIR} \\\\" \
-        "\t&& pip install --upgrade pip \\\\" \
-        "\t&& pip install -e .[all] \\\\" \
+        "RUN pip install -e .[tensorflow] \\\\" \
+        "\t# Do not upgrade NVIDIA image" \
+        "\t# && apt-get update -y \\\\" \
+        "\t# && apt-get upgrade -y \\\\" \
+        "\t# && apt-get install -y \\\\" \
+        "\t\t# apt-utils \\\\" \
+        "\t# && pip install -r requirements_tensorflow.txt \\\\" \
         "\t&& rm -rf /tmp/* \\\\" \
         "\t&& rm -rf /var/lib/apt/lists/* \\\\" \
         "\t&& apt-get clean" \
@@ -1501,8 +1507,11 @@ setup_py() {
         "        'memory_profiler'," \
         "        'snakeviz'," \
         "    }," \
+        "    'pytorch_extra': {" \
+        "        'torchvision'," \
+        "    }," \
+        "    'tensorflow_extra': {}," \
         "    'test': {" \
-        "        'Faker'," \
         "        'git-lint'," \
         "        'pytest'," \
         "        'pytest-cov'," \
@@ -1563,7 +1572,6 @@ setup_py() {
         "          'click'," \
         "          'matplotlib'," \
         "          'opencv-python-headless'," \
-        "          'pandas'," \
         "          'psycopg2-binary'," \
         "          'pymongo'," \
         "          'sqlalchemy'," \
@@ -1575,6 +1583,10 @@ setup_py() {
         "          'docs': combine_dependencies('docs')," \
         "          'jupyter': combine_dependencies('jupyter')," \
         "          'profile': combine_dependencies('profile')," \
+        "          'pytorch': combine_dependencies(" \
+        "              [x for x in dependencies if 'tensorflow' not in x])," \
+        "          'tensorflow': combine_dependencies(" \
+        "              [x for x in dependencies if 'pytorch' not in x])," \
         "          'test': combine_dependencies('test')," \
         "      }," \
         "      package_dir={'${MAIN_DIR}': '${SOURCE_DIR}'}," \
