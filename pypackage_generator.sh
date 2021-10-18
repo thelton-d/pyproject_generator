@@ -604,18 +604,25 @@ docker_python() {
 
 docker_pytorch() {
     printf "%b\n" \
-        "FROM pytorch/pytorch" \
+        "FROM nvcr.io/nvidia/pytorch:21.09-py3" \
+        "" \
+        "ENV TORCH_HOME=/usr/src/warehouse/cache" \
         "" \
         "WORKDIR /usr/src/${MAIN_DIR}" \
         "" \
         "COPY . ." \
         "" \
-        "RUN conda update -y conda \\\\" \
-        "\t&& conda update -y --all \\\\" \
-        "\t&& while read requirement; do conda install --yes \${requirement}; done < requirements.txt \\\\" \
-        "\t&& conda install -y pytorch torchvision -c pytorch \\\\" \
-        "\t&& pip install -e .[build,data,database,docs,notebook,profile,test] \\\\" \
-        "$(common_image)" \
+        "RUN pip install -e .[pytorch] \\\\" \
+        "\t# Do not update NVIDIA image" \
+        "\t# && apt-get update -y \\\\" \
+        "\t# && apt-get upgrade -y \\\\" \
+        "\t# && apt-get install -y \\\\" \
+        "\t\t# apt-utils \\\\" \
+        "\t# && conda update -y conda \\\\" \
+        "\t# && while read requirement; do conda install --yes \${requirement}; done < requirements_pytorch.txt \\\\" \
+        "\t&& rm -rf /tmp/* \\\\" \
+        "\t&& rm -rf /var/lib/apt/lists/* \\\\" \
+        "\t&& apt-get clean \\\\" \
         "" \
         "CMD [ \"/bin/bash\" ]" \
         "" \
