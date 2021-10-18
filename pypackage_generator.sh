@@ -537,6 +537,7 @@ docker_compose() {
         "      - db-database" \
         "      - db-password" \
         "      - db-username" \
+        "      - package" \
         "    tty: true" \
         "    volumes:" \
         "      - ..:/usr/src/${MAIN_DIR}" \
@@ -558,6 +559,8 @@ docker_compose() {
         "    file: secrets/db_password.txt" \
         "  db-username:" \
         "    file: secrets/db_username.txt" \
+        "  package:" \
+        "    file: secrets/package.txt" \
         "" \
         "volumes:" \
         "  ${MAIN_DIR}-db:" \
@@ -1057,6 +1060,7 @@ makefile() {
         "\t\t\t && printf '%s' \"admin\" >> 'db_init_username.txt' \\\\" \
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
+        "\t\t\t && printf '%s' \$(PROJECT) >> 'package.txt' \\\\" \
         "\t\t\t && useradd \$(USER) \\\\" \
         "\t\t\t && chown \$(USER) .\"" \
         "" \
@@ -1411,6 +1415,12 @@ secret_db_username() {
         > "${SECRETS_PATH}db_username.txt"
 }
 
+secret_package() {
+    printf "%s" \
+        "${MAIN_DIR}" \
+        > "${SECRETS_PATH}package.txt"
+}
+
 
 setup_cfg() {
     printf "%s\n" \
@@ -1701,7 +1711,7 @@ test_utils() {
         "" \
         "# Test docker_secret()" \
         "docker_secret = {" \
-        "    'database': ('db-database', '${MAIN_DIR}')," \
+        "    'package': ('package', '${MAIN_DIR}')," \
         "}" \
         "" \
         "" \
@@ -2112,6 +2122,7 @@ secret_db_init_password
 secret_db_init_username
 secret_db_password
 secret_db_username
+secret_package
 setup_cfg
 setup_py
 test_cli
