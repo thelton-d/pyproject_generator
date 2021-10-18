@@ -1031,21 +1031,6 @@ makefile() {
         "\tdocker container exec -it \$(PROJECT)_postgres \\\\" \
         "\t\tpsql -U \${POSTGRES_USER} \$(PROJECT)" \
         "" \
-        "pytorch: pytorch-docker docker-rebuild" \
-        "" \
-        "pytorch-docker:" \
-        "\tdocker container run --rm \\\\" \
-        "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t-w /usr/src/\$(PROJECT) \\\\" \
-        "\t\tubuntu \\\\" \
-        "\t\t/bin/bash -c \\\\" \
-        "\t\t\t\"sed -i -e 's/python.Dockerfile/pytorch.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/tensorflow.Dockerfile/pytorch.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/PKG_MANAGER=pip/PKG_MANAGER=conda/g' \\\\" \
-        "\t\t\t\tMakefile\"" \
-        "" \
         "secret_templates:" \
         "	docker container run --rm \\\\" \
         "\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
@@ -1081,29 +1066,6 @@ makefile() {
         "\t\t\t\t--port \$(PORT) \\\\" \
         "\t\t\t\t--server\"" \
         "\tdocker network connect \$(PROJECT) snakeviz_\$(PORT)" \
-        "" \
-        "tensorflow: tensorflow-updates docker-rebuild" \
-        "" \
-        "tensorflow-updates:" \
-        "\tdocker container run --rm \\\\" \
-        "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t-w /usr/src/\$(PROJECT) \\\\" \
-        "\t\tubuntu \\\\" \
-        "\t\t/bin/bash -c \\\\" \
-        "\t\t\t\"sed -i -e 's/python.Dockerfile/tensorflow.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/pytorch.Dockerfile/tensorflow.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/PKG_MANAGER=conda/PKG_MANAGER=pip/g' \\\\" \
-        "\t\t\t\tMakefile \\\\" \
-        "\t\t\t && sed -i -e 's/JUPYTER=lab/JUPYTER=notebook/g' Makefile \\\\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo \\" \
-        "\t\t\t && echo 'Add \\\"tensorflow\\\" or \\\"tensorflow-gpu\\\" to install_requires in the setup.py file' \\\\" \
-        "\t\t\t && echo \\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo '*********************************************************************************'\"" \
         "" \
         "test: docker-up format-style" \
         "\tdocker container exec \$(PROJECT)_python py.test \$(PROJECT)" \
