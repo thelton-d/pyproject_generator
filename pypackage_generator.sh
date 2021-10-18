@@ -1507,8 +1507,11 @@ setup_py() {
         "        'memory_profiler'," \
         "        'snakeviz'," \
         "    }," \
+        "    'pytorch_extra': {" \
+        "        'torchvision'," \
+        "    }," \
+        "    'tensorflow_extra': {}," \
         "    'test': {" \
-        "        'Faker'," \
         "        'git-lint'," \
         "        'pytest'," \
         "        'pytest-cov'," \
@@ -1569,7 +1572,6 @@ setup_py() {
         "          'click'," \
         "          'matplotlib'," \
         "          'opencv-python-headless'," \
-        "          'pandas'," \
         "          'psycopg2-binary'," \
         "          'pymongo'," \
         "          'sqlalchemy'," \
@@ -1581,6 +1583,10 @@ setup_py() {
         "          'docs': combine_dependencies('docs')," \
         "          'jupyter': combine_dependencies('jupyter')," \
         "          'profile': combine_dependencies('profile')," \
+        "          'pytorch': combine_dependencies(" \
+        "              [x for x in dependencies if 'tensorflow' not in x])," \
+        "          'tensorflow': combine_dependencies(" \
+        "              [x for x in dependencies if 'pytorch' not in x])," \
         "          'test': combine_dependencies('test')," \
         "      }," \
         "      package_dir={'${MAIN_DIR}': '${SOURCE_DIR}'}," \
