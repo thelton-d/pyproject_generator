@@ -828,12 +828,12 @@ makefile() {
         'DB:="admin"' \
         "DB_PASSWORD:=\$(file < docker/secrets/db_password.txt)" \
         "DB_USERNAME:=\$(file < docker/secrets/db_username.txt)" \
-        "LAMBDA_STACK_IMAGE:=lambda-stack:${LAMBDA_STACK_VERSION}" \
+        "# Available frameworks are pytorch and tensorflow" \
+        "FRAMEWORK=pytorch" \
+        "DOCKER_IMAGE=\$(shell head -n 1 docker/\$(FRAMEWORK).Dockerfile | cut -d ' ' -f 2)" \
         "MOUNT_DIR=\$(shell pwd)" \
         "MODELS=/opt/models" \
-        "PKG_MANAGER=pip" \
         "PORT:=\$(shell awk -v min=16384 -v max=27000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')" \
-        "NOTEBOOK_NAME=\$(USER)_notebook_\$(PORT)" \
         'PROFILE_PY:=""' \
         "PROFILE_PROF:=\$(notdir \$(PROFILE_PY:.py=.prof))" \
         "PROFILE_PATH:=profiles/\$(PROFILE_PROF)" \
@@ -842,12 +842,12 @@ makefile() {
         "TEX_FILE:=\"*.tex\"" \
         "TEX_WORKING_DIR=\${SRC_DIR}/\${TEX_DIR}" \
         "USER=\$(shell echo \$\${USER%%@*})" \
-        "VERSION=\$(shell echo \$(shell cat ${SOURCE_DIR}/__init__.py | \\\\" \
-        "\t\t\tgrep \"^__version__\" | \\\\" \
-        "\t\t\tcut -d = -f 2))" \
-        "JUPYTER=lab" \
-        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/')\"" \
+        "VERSION=\$(shell cat ${SOURCE_DIR}/__init__.py | grep \"^__version__\" | cut -d = -f 2)" \
+        "" \
+        "JUPYTER=notebook" \
+        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/' | sed -e 's/tree/lab/')\"" \
         "NOTEBOOK_DELAY=10" \
+        "NOTEBOOK_NAME=\$(USER)_notebook_\$(PORT)" \
         "" \
         ".PHONY: docs format-style upgrade-packages" \
         "" \
@@ -867,10 +867,10 @@ makefile() {
         "\tdocker image ls | grep -v REPOSITORY | cut -d ' ' -f 1 | xargs -L1 docker pull" \
         ""\
         "docker-rebuild: setup.py" \
-        "\tdocker-compose -f docker/docker-compose.yaml up -d --build" \
+        "\tdocker-compose -f docker/docker-compose.yaml -f docker/\$(FRAMEWORK).yaml up -d --build" \
         "" \
         "docker-up:" \
-        "\tdocker-compose -f docker/docker-compose.yaml up -d" \
+        "\tdocker-compose -f docker/docker-compose.yaml -f docker/\$(FRAMEWORK).yaml up -d" \
         "" \
         "docs: docker-up" \
         "\tdocker container exec \$(PROJECT)_python \\\\" \
@@ -1008,7 +1008,7 @@ makefile() {
         "\t\t--name \$(NOTEBOOK_NAME) \\\\" \
         "\t\t-p \$(PORT):\$(PORT) \\\\" \
         "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t\$(PROJECT)_python \\\\" \
+        "\t\t\$(PROJECT)_python_\$(FRAMEWORK) \\\\" \
         "\t\t/bin/bash -c \"jupyter \$(JUPYTER) \\\\" \
         "\t\t\t\t--allow-root \\\\" \
         "\t\t\t\t--ip=0.0.0.0 \\\\" \
