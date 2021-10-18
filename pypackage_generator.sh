@@ -567,6 +567,36 @@ docker_compose() {
 }
 
 
+docker_compose_pytorch() {
+    printf "%s\n" \
+        "version: '3.8'" \
+        "" \
+        "services:" \
+        "" \
+        "  python:" \
+        "    image: ${MAIN_DIR}_python_pytorch" \
+        "    build:" \
+        "      dockerfile: docker/pytorch.Dockerfile" \
+        "" \
+        > "${DOCKER_PATH}pytorch.yaml"
+}
+
+
+docker_compose_tensorflow() {
+    printf "%s\n" \
+        "version: '3.8'" \
+        "" \
+        "services:" \
+        "" \
+        "  python:" \
+        "    image: ${MAIN_DIR}_python_tensorflow" \
+        "    build:" \
+        "      dockerfile: docker/tensorflow.Dockerfile" \
+        "" \
+        > "${DOCKER_PATH}tensorflow.yaml"
+}
+
+
 docker_ignore() {
     printf "%s\n" \
         "*.egg-info" \
@@ -2063,6 +2093,8 @@ constructor_pkg
 constructor_test
 db
 docker_compose
+docker_compose_pytorch
+docker_compose_tensorflow
 docker_ignore
 docker_python
 docker_pytorch
