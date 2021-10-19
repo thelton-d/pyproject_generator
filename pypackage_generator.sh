@@ -51,6 +51,7 @@ PY_ENCODING="# -*- coding: utf-8 -*-"
 
 DOCKER_PATH="${MAIN_DIR}${FILE_SEP}${DOCKER_DIR}${FILE_SEP}"
 MONGO_INIT_PATH="${DOCKER_PATH}${MONGO_INIT_DIR}${FILE_SEP}"
+SCRIPTS_PATH="${MAIN_DIR}${FILE_SEP}${SCRIPTS_DIR}${FILE_SEP}"
 SECRETS_PATH="${DOCKER_PATH}${SECRETS_DIR}${FILE_SEP}"
 SRC_PATH="${MAIN_DIR}${FILE_SEP}${SOURCE_DIR}${FILE_SEP}"
 TEST_PATH="${SRC_PATH}${TEST_DIR}${FILE_SEP}"
@@ -817,6 +818,50 @@ git_init() {
 }
 
 
+gpu_check_pytorch() {
+    local path="${SCRIPTS_PATH}gpu_check_pytorch.py"
+    printf "%s\n" \
+        "${PY_SHEBANG}" \
+        "${PY_ENCODING}" \
+        '""" Check GPU Availability in PyTorch' \
+        "" \
+        "Example:" \
+        "    docker container exec ${MAIN_DIR}_python scripts/check_gpu_pytorch.py" \
+        '"""' \
+        "import torch" \
+        "" \
+        "if __name__ == '__main__':" \
+        "    device = 'GPU' if torch.cuda.is_available() else 'CPU'" \
+        "    print('\n' + '*' * 80)" \
+        "    print(f'\nAvailable hardware: {device}')" \
+        "    print('\n' + '*' * 80)" \
+        > "$path"
+    chmod ug+x "$path"
+}
+
+
+gpu_check_tensorflow() {
+    local path="${SCRIPTS_PATH}gpu_check_tensorflow.py"
+    printf "%s\n" \
+        "${PY_SHEBANG}" \
+        "${PY_ENCODING}" \
+        '""" Check GPU Availability in TensorFlow' \
+        "" \
+        "Example:" \
+        "    docker container exec ${MAIN_DIR}_python scripts/check_gpu_tensorflow.py" \
+        '"""' \
+        "import tensorflow as tf" \
+        "" \
+        "if __name__ == '__main__':" \
+        "    device = 'GPU' if tf.config.list_physical_devices('GPU') else 'CPU'" \
+        "    print('\n' + '*' * 80)" \
+        "    print(f'\nAvailable hardware: {device}')" \
+        "    print('\n' + '*' * 80)" \
+        > "$path"
+    chmod ug+x "$path"
+}
+
+
 license() {
     printf "%s\n" \
         "Copyright (c) ${YEAR}, ${AUTHOR}." \
@@ -1015,6 +1060,9 @@ makefile() {
         "\t\$(warning make mongo-create-user)" \
         "\t\$(warning )" \
         "\t\$(warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)" \
+        "" \
+        "gpu-check: docker-up" \
+        "\tdocker container exec $(PROJECT)_python scripts/gpu_check_$(FRAMEWORK).py" \
         "" \
         "ipython: docker-up" \
         "\tdocker container exec -it \$(PROJECT)_python ipython" \
@@ -2109,6 +2157,8 @@ exceptions
 git_attributes
 git_config
 git_ignore
+gpu_check_pytorch
+gpu_check_tensorflow
 mongo_create_admin
 mongo_create_user
 pkg_globals
