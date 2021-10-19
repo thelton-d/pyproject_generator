@@ -1039,6 +1039,8 @@ makefile() {
         "notebook-server:" \
         "\tdocker container run -d --rm \\\\" \
         "\t\t--name \$(NOTEBOOK_NAME) \\\\" \
+        "\t\t--gpus all \\\\" \
+        "\t\t-p 6006:6006 \\\\" \
         "\t\t-p \$(PORT):\$(PORT) \\\\" \
         "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
         "\t\t\$(PROJECT)_python_\$(FRAMEWORK) \\\\" \
