@@ -867,7 +867,6 @@ makefile() {
         "FRAMEWORK=pytorch" \
         "DOCKER_IMAGE=\$(shell head -n 1 docker/\$(FRAMEWORK).Dockerfile | cut -d ' ' -f 2)" \
         "MOUNT_DIR=\$(shell pwd)" \
-        "MODELS=/opt/models" \
         "PORT:=\$(shell awk -v min=16384 -v max=27000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')" \
         'PROFILE_PY:=""' \
         "PROFILE_PROF:=\$(notdir \$(PROFILE_PY:.py=.prof))" \
@@ -909,7 +908,7 @@ makefile() {
         "docs: docker-up" \
         "\tdocker container exec \$(PROJECT)_python \\\\" \
         "\t\t/bin/bash -c \"pip install -e .[docs] && cd docs && make html\"" \
-        "\t\${BROWSER} http://localhost:8080\n" \
+        "\t\${BROWSER} http://localhost:8080" \
         "" \
         "docs-init: docker-up" \
         "\tfind docs -maxdepth 1 -type f -delete" \
