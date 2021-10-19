@@ -840,6 +840,28 @@ gpu_check_pytorch() {
 }
 
 
+gpu_check_tensorflow() {
+    local path="${SCRIPTS_PATH}gpu_check_tensorflow.py"
+    printf "%s\n" \
+        "${PY_SHEBANG}" \
+        "${PY_ENCODING}" \
+        '""" Check GPU Availability in TensorFlow' \
+        "" \
+        "Example:" \
+        "    docker container exec ${MAIN_DIR}_python scripts/check_gpu_tensorflow.py" \
+        '"""' \
+        "import tensorflow as tf" \
+        "" \
+        "if __name__ == '__main__':" \
+        "    device = 'GPU' if tf.config.list_physical_devices('GPU') else 'CPU'" \
+        "    print('\n' + '*' * 80)" \
+        "    print(f'\nAvailable hardware: {device}')" \
+        "    print('\n' + '*' * 80)" \
+        > "$path"
+    chmod ug+x "$path"
+}
+
+
 license() {
     printf "%s\n" \
         "Copyright (c) ${YEAR}, ${AUTHOR}." \
@@ -2133,6 +2155,7 @@ git_attributes
 git_config
 git_ignore
 gpu_check_pytorch
+gpu_check_tensorflow
 mongo_create_admin
 mongo_create_user
 pkg_globals
