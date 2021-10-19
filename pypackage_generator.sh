@@ -1061,6 +1061,9 @@ makefile() {
         "\t\$(warning )" \
         "\t\$(warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)" \
         "" \
+        "gpu-check: docker-up" \
+        "\tdocker container exec $(PROJECT)_python scripts/gpu_check_$(FRAMEWORK).py" \
+        "" \
         "ipython: docker-up" \
         "\tdocker container exec -it \$(PROJECT)_python ipython" \
         "" \
