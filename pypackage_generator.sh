@@ -13,9 +13,6 @@ SOURCE_DIR="${2:-$1}"
 : "${DOCKER_DIR:=docker}"
 : "${DOCS_DIR:=docs}"
 : "${FILE_SEP:=/}"
-: "${LAMBDA_STACK_DOCKER_FILE:=Dockerfile.focal}"
-: "${LAMBDA_STACK_URL:=git://github.com/lambdal/lambda-stack-dockerfiles.git}"
-: "${LAMBDA_STACK_VERSION:=20.04}"
 : "${MONGO_INIT_DIR:=mongo_init}"
 : "${NODEJS_VERSION:=12}"
 : "${NOTEBOOK_DIR:=notebooks}"
@@ -520,15 +517,17 @@ docker_compose() {
         "      - ${MAIN_DIR}-db:/var/lib/postgresql/data" \
         "" \
         "  python:" \
-        "    container_name: ${MAIN_DIR}_python" \
-        "    image: ${MAIN_DIR}_python" \
         "    build:" \
         "      context: .." \
-        "      dockerfile: docker/python.Dockerfile" \
-        "    depends_on:" \
-        "      - mongodb" \
-        "      - postgres" \
-        "    networks:"\
+        "      shm_size: 1g" \
+        "    container_name: ${MAIN_DIR}_python" \
+        "    deploy:" \
+        "      resources:" \
+        "        reservations:" \
+        "          devices:" \
+        "            - capabilities: [gpu]" \
+        "    ipc: host" \
+        "    networks:" \
         "      - ${MAIN_DIR}-network" \
         "    ports:" \
         "      - '8888:8080'" \
@@ -538,7 +537,10 @@ docker_compose() {
         "      - db-password" \
         "      - db-username" \
         "      - package" \
+        "    shm_size: 16g" \
         "    tty: true" \
+        "    ulimits:" \
+        "      memlock: -1" \
         "    volumes:" \
         "      - ..:/usr/src/${MAIN_DIR}" \
         "      - ${MAIN_DIR}-secret:/usr/src/${MAIN_DIR}/.git" \
@@ -567,6 +569,36 @@ docker_compose() {
         "  ${MAIN_DIR}-secret:" \
         "" \
         > "${DOCKER_PATH}docker-compose.yaml"
+}
+
+
+docker_compose_pytorch() {
+    printf "%s\n" \
+        "version: '3.8'" \
+        "" \
+        "services:" \
+        "" \
+        "  python:" \
+        "    image: ${MAIN_DIR}_python_pytorch" \
+        "    build:" \
+        "      dockerfile: docker/pytorch.Dockerfile" \
+        "" \
+        > "${DOCKER_PATH}pytorch.yaml"
+}
+
+
+docker_compose_tensorflow() {
+    printf "%s\n" \
+        "version: '3.8'" \
+        "" \
+        "services:" \
+        "" \
+        "  python:" \
+        "    image: ${MAIN_DIR}_python_tensorflow" \
+        "    build:" \
+        "      dockerfile: docker/tensorflow.Dockerfile" \
+        "" \
+        > "${DOCKER_PATH}tensorflow.yaml"
 }
 
 
@@ -831,12 +863,11 @@ makefile() {
         'DB:="admin"' \
         "DB_PASSWORD:=\$(file < docker/secrets/db_password.txt)" \
         "DB_USERNAME:=\$(file < docker/secrets/db_username.txt)" \
-        "LAMBDA_STACK_IMAGE:=lambda-stack:${LAMBDA_STACK_VERSION}" \
+        "# Available frameworks are pytorch and tensorflow" \
+        "FRAMEWORK=pytorch" \
+        "DOCKER_IMAGE=\$(shell head -n 1 docker/\$(FRAMEWORK).Dockerfile | cut -d ' ' -f 2)" \
         "MOUNT_DIR=\$(shell pwd)" \
-        "MODELS=/opt/models" \
-        "PKG_MANAGER=pip" \
         "PORT:=\$(shell awk -v min=16384 -v max=27000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')" \
-        "NOTEBOOK_NAME=\$(USER)_notebook_\$(PORT)" \
         'PROFILE_PY:=""' \
         "PROFILE_PROF:=\$(notdir \$(PROFILE_PY:.py=.prof))" \
         "PROFILE_PATH:=profiles/\$(PROFILE_PROF)" \
@@ -845,12 +876,11 @@ makefile() {
         "TEX_FILE:=\"*.tex\"" \
         "TEX_WORKING_DIR=\${SRC_DIR}/\${TEX_DIR}" \
         "USER=\$(shell echo \$\${USER%%@*})" \
-        "VERSION=\$(shell echo \$(shell cat ${SOURCE_DIR}/__init__.py | \\\\" \
-        "\t\t\tgrep \"^__version__\" | \\\\" \
-        "\t\t\tcut -d = -f 2))" \
-        "JUPYTER=lab" \
-        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter \$(JUPYTER) list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/')\"" \
+        "VERSION=\$(shell cat ${SOURCE_DIR}/__init__.py | grep \"^__version__\" | cut -d = -f 2)" \
+        "" \
+        "NOTEBOOK_CMD=\"\${BROWSER} \$\$(docker container exec \$(USER)_notebook_\$(PORT) jupyter notebook list | grep -o '^http\S*' | sed -e 's/\(http:\/\/\).*\(:\)/\\\\1localhost\\\\2/' | sed -e 's/tree/lab/')\"" \
         "NOTEBOOK_DELAY=10" \
+        "NOTEBOOK_NAME=\$(USER)_notebook_\$(PORT)" \
         "" \
         ".PHONY: docs format-style upgrade-packages" \
         "" \
@@ -870,15 +900,15 @@ makefile() {
         "\tdocker image ls | grep -v REPOSITORY | cut -d ' ' -f 1 | xargs -L1 docker pull" \
         ""\
         "docker-rebuild: setup.py" \
-        "\tdocker-compose -f docker/docker-compose.yaml up -d --build" \
+        "\tdocker-compose -f docker/docker-compose.yaml -f docker/\$(FRAMEWORK).yaml up -d --build" \
         "" \
         "docker-up:" \
-        "\tdocker-compose -f docker/docker-compose.yaml up -d" \
+        "\tdocker-compose -f docker/docker-compose.yaml -f docker/\$(FRAMEWORK).yaml up -d" \
         "" \
         "docs: docker-up" \
         "\tdocker container exec \$(PROJECT)_python \\\\" \
         "\t\t/bin/bash -c \"pip install -e .[docs] && cd docs && make html\"" \
-        "\t\${BROWSER} http://localhost:8080\n" \
+        "\t\${BROWSER} http://localhost:8080" \
         "" \
         "docs-init: docker-up" \
         "\tfind docs -maxdepth 1 -type f -delete" \
@@ -971,7 +1001,7 @@ makefile() {
         "format-style: docker-up" \
         "\tdocker container exec \$(PROJECT)_python yapf -i -p -r --style \"pep8\" \${SRC_DIR}" \
         "" \
-        "getting-started: lambda-image secret_templates docs-init" \
+        "getting-started: secret-templates docs-init" \
         "\tmkdir cache" \
         "\tmkdir htmlcov" \
         "\tmkdir profiles" \
@@ -988,12 +1018,6 @@ makefile() {
         "" \
         "ipython: docker-up" \
         "\tdocker container exec -it \$(PROJECT)_python ipython" \
-        "" \
-        "lambda-image:" \
-        "\tsudo apt-get update" \
-        "\tsudo apt-get upgrade" \
-        "\tdocker build -t \$(LAMBDA_STACK_IMAGE) -f ${LAMBDA_STACK_DOCKER_FILE} ${LAMBDA_STACK_URL}" \
-        "\tsed -i 's/FROM.*/FROM \$(LAMBDA_STACK_IMAGE)/' docker/python.Dockerfile" \
         "" \
         "latexmk: docker-up" \
         "\tdocker container exec -w \$(TEX_WORKING_DIR) \$(PROJECT)_latex \\\\" \
@@ -1015,10 +1039,12 @@ makefile() {
         "notebook-server:" \
         "\tdocker container run -d --rm \\\\" \
         "\t\t--name \$(NOTEBOOK_NAME) \\\\" \
+        "\t\t--gpus all \\\\" \
+        "\t\t-p 6006:6006 \\\\" \
         "\t\t-p \$(PORT):\$(PORT) \\\\" \
         "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t\$(PROJECT)_python \\\\" \
-        "\t\t/bin/bash -c \"jupyter \$(JUPYTER) \\\\" \
+        "\t\t\$(PROJECT)_python_\$(FRAMEWORK) \\\\" \
+        "\t\t/bin/bash -c \"jupyter lab \\\\" \
         "\t\t\t\t--allow-root \\\\" \
         "\t\t\t\t--ip=0.0.0.0 \\\\" \
         "\t\t\t\t--no-browser \\\\" \
@@ -1040,22 +1066,7 @@ makefile() {
         "\tdocker container exec -it \$(PROJECT)_postgres \\\\" \
         "\t\tpsql -U \${POSTGRES_USER} \$(PROJECT)" \
         "" \
-        "pytorch: pytorch-docker docker-rebuild" \
-        "" \
-        "pytorch-docker:" \
-        "\tdocker container run --rm \\\\" \
-        "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t-w /usr/src/\$(PROJECT) \\\\" \
-        "\t\tubuntu \\\\" \
-        "\t\t/bin/bash -c \\\\" \
-        "\t\t\t\"sed -i -e 's/python.Dockerfile/pytorch.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/tensorflow.Dockerfile/pytorch.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/PKG_MANAGER=pip/PKG_MANAGER=conda/g' \\\\" \
-        "\t\t\t\tMakefile\"" \
-        "" \
-        "secret_templates:" \
+        "secret-templates:" \
         "	docker container run --rm \\\\" \
         "\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
         "\t-w /usr/src/\$(PROJECT)/docker/secrets \\\\" \
@@ -1090,29 +1101,6 @@ makefile() {
         "\t\t\t\t--port \$(PORT) \\\\" \
         "\t\t\t\t--server\"" \
         "\tdocker network connect \$(PROJECT) snakeviz_\$(PORT)" \
-        "" \
-        "tensorflow: tensorflow-updates docker-rebuild" \
-        "" \
-        "tensorflow-updates:" \
-        "\tdocker container run --rm \\\\" \
-        "\t\t-v \`pwd\`:/usr/src/\$(PROJECT) \\\\" \
-        "\t\t-w /usr/src/\$(PROJECT) \\\\" \
-        "\t\tubuntu \\\\" \
-        "\t\t/bin/bash -c \\\\" \
-        "\t\t\t\"sed -i -e 's/python.Dockerfile/tensorflow.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/pytorch.Dockerfile/tensorflow.Dockerfile/g' \\\\" \
-        "\t\t\t\tdocker/docker-compose.yaml \\\\" \
-        "\t\t\t && sed -i -e 's/PKG_MANAGER=conda/PKG_MANAGER=pip/g' \\\\" \
-        "\t\t\t\tMakefile \\\\" \
-        "\t\t\t && sed -i -e 's/JUPYTER=lab/JUPYTER=notebook/g' Makefile \\\\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo \\" \
-        "\t\t\t && echo 'Add \\\"tensorflow\\\" or \\\"tensorflow-gpu\\\" to install_requires in the setup.py file' \\\\" \
-        "\t\t\t && echo \\" \
-        "\t\t\t && echo '*********************************************************************************' \\\\" \
-        "\t\t\t && echo '*********************************************************************************'\"" \
         "" \
         "test: docker-up format-style" \
         "\tdocker container exec \$(PROJECT)_python py.test \$(PROJECT)" \
@@ -1891,8 +1879,8 @@ utils() {
         '    """' \
         "    Read Docker secret file." \
         "" \
-        "    :param secret_name: name of secrete to retrieve" \
-        "    :return: contents of secrete file" \
+        "    :param secret_name: name of secret to retrieve" \
+        "    :return: contents of secret file" \
         '    """' \
         "    try:" \
         "        with open(f'/run/secrets/{secret_name}', 'r') as f:" \
@@ -2111,6 +2099,8 @@ constructor_pkg
 constructor_test
 db
 docker_compose
+docker_compose_pytorch
+docker_compose_tensorflow
 docker_ignore
 docker_python
 docker_pytorch
