@@ -51,6 +51,7 @@ PY_ENCODING="# -*- coding: utf-8 -*-"
 
 DOCKER_PATH="${MAIN_DIR}${FILE_SEP}${DOCKER_DIR}${FILE_SEP}"
 MONGO_INIT_PATH="${DOCKER_PATH}${MONGO_INIT_DIR}${FILE_SEP}"
+SCRIPTS_PATH="${MAIN_DIR}${FILE_SEP}${SCRIPTS_DIR}${FILE_SEP}"
 SECRETS_PATH="${DOCKER_PATH}${SECRETS_DIR}${FILE_SEP}"
 SRC_PATH="${MAIN_DIR}${FILE_SEP}${SOURCE_DIR}${FILE_SEP}"
 TEST_PATH="${SRC_PATH}${TEST_DIR}${FILE_SEP}"
@@ -814,6 +815,28 @@ git_init() {
     git init
     git add --all
     git commit -m "Initial Commit"
+}
+
+
+gpu_check_pytorch() {
+    local path="${SCRIPTS_PATH}gpu_check_pytorch.py"
+    printf "%s\n" \
+        "${PY_SHEBANG}" \
+        "${PY_ENCODING}" \
+        '""" Check GPU Availability in PyTorch' \
+        "" \
+        "Example:" \
+        "    docker container exec ${MAIN_DIR}_python scripts/check_gpu_pytorch.py" \
+        '"""' \
+        "import torch" \
+        "" \
+        "if __name__ == '__main__':" \
+        "    device = 'GPU' if torch.cuda.is_available() else 'CPU'" \
+        "    print('\n' + '*' * 80)" \
+        "    print(f'\nAvailable hardware: {device}')" \
+        "    print('\n' + '*' * 80)" \
+        > "$path"
+    chmod ug+x "$path"
 }
 
 
@@ -2109,6 +2132,7 @@ exceptions
 git_attributes
 git_config
 git_ignore
+gpu_check_pytorch
 mongo_create_admin
 mongo_create_user
 pkg_globals
