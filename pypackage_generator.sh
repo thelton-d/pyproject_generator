@@ -956,10 +956,10 @@ makefile() {
         "\t\${BROWSER} http://localhost:8080" \
         "" \
         "docs-init: docker-up" \
-        "\tfind docs -maxdepth 1 -type f -delete" \
         "\tdocker container exec \$(PROJECT)_python \\\\" \
         "\t\t/bin/bash -c \\\\" \
         "\t\t\t\"cd docs \\\\" \
+        "\t\t\t rm -rf * \\\\" \
         "\t\t\t && sphinx-quickstart -q \\\\" \
         "\t\t\t\t-p \$(PROJECT) \\\\" \
         "\t\t\t\t-a \"${AUTHOR}\" \\\\" \
@@ -967,7 +967,9 @@ makefile() {
         "\t\t\t\t--ext-autodoc \\\\" \
         "\t\t\t\t--ext-viewcode \\\\" \
         "\t\t\t\t--makefile \\\\" \
-        "\t\t\t\t--no-batchfile\"" \
+        "\t\t\t\t--no-batchfile \\\\" \
+        "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
+        "\t\t\t && chown \$(USER) *\"" \
         "\tdocker-compose -f docker/docker-compose.yaml restart nginx" \
         "ifeq (\"\$(shell git remote)\", \"origin\")" \
         "\tgit fetch" \
@@ -1049,7 +1051,9 @@ makefile() {
         "getting-started: secret-templates docs-init" \
         "\tmkdir cache" \
         "\tmkdir htmlcov" \
+        "\tmkdir notebooks" \
         "\tmkdir profiles" \
+        "\tmkdir wheels" \
         "\t\$(warning )" \
         "\t\$(warning )" \
         "\t\$(warning )" \
@@ -1125,9 +1129,9 @@ makefile() {
         "\t\t\t && printf '%s' \"admin\" >> 'db_init_username.txt' \\\\" \
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
-        "\t\t\t && printf '%s' \$(PROJECT) >> 'package.txt' \\\\" \
+        "\t\t\t && printf '%s' \"$(PROJECT)\" >> 'package.txt' \\\\" \
         "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
-        "\t\t\t && chown \$(USER) .\"" \
+        "\t\t\t && chown \$(USER) *\"" \
         "" \
         "snakeviz: docker-up profile snakeviz-server" \
         "\tsleep 0.5" \
