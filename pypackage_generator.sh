@@ -1127,9 +1127,9 @@ makefile() {
         "\t\t\t && printf '%s' \"admin\" >> 'db_init_username.txt' \\\\" \
         "\t\t\t && printf '%s' \"password\" >> 'db_password.txt' \\\\" \
         "\t\t\t && printf '%s' \"user\" >> 'db_username.txt' \\\\" \
-        "\t\t\t && printf '%s' \$(PROJECT) >> 'package.txt' \\\\" \
+        "\t\t\t && printf '%s' \"$(PROJECT)\" >> 'package.txt' \\\\" \
         "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
-        "\t\t\t && chown \$(USER) .\"" \
+        "\t\t\t && chown \$(USER) *\"" \
         "" \
         "snakeviz: docker-up profile snakeviz-server" \
         "\tsleep 0.5" \
