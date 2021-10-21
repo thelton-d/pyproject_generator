@@ -1051,7 +1051,9 @@ makefile() {
         "getting-started: secret-templates docs-init" \
         "\tmkdir cache" \
         "\tmkdir htmlcov" \
+        "\tmkdir notebooks" \
         "\tmkdir profiles" \
+        "\tmkdir wheels" \
         "\t\$(warning )" \
         "\t\$(warning )" \
         "\t\$(warning )" \
