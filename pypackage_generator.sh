@@ -956,10 +956,10 @@ makefile() {
         "\t\${BROWSER} http://localhost:8080" \
         "" \
         "docs-init: docker-up" \
-        "\tfind docs -maxdepth 1 -type f -delete" \
         "\tdocker container exec \$(PROJECT)_python \\\\" \
         "\t\t/bin/bash -c \\\\" \
         "\t\t\t\"cd docs \\\\" \
+        "\t\t\t rm -rf * \\\\" \
         "\t\t\t && sphinx-quickstart -q \\\\" \
         "\t\t\t\t-p \$(PROJECT) \\\\" \
         "\t\t\t\t-a \"${AUTHOR}\" \\\\" \
@@ -967,7 +967,9 @@ makefile() {
         "\t\t\t\t--ext-autodoc \\\\" \
         "\t\t\t\t--ext-viewcode \\\\" \
         "\t\t\t\t--makefile \\\\" \
-        "\t\t\t\t--no-batchfile\"" \
+        "\t\t\t\t--no-batchfile \\\\" \
+        "\t\t\t && useradd \$(USER) &> /dev/null || true \\\\" \
+        "\t\t\t && chown \$(USER) *\"" \
         "\tdocker-compose -f docker/docker-compose.yaml restart nginx" \
         "ifeq (\"\$(shell git remote)\", \"origin\")" \
         "\tgit fetch" \
