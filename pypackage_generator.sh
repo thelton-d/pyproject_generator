@@ -1720,6 +1720,7 @@ setup_py() {
         "          'click'," \
         "          'matplotlib'," \
         "          'opencv-python-headless'," \
+        "          'pandas'," \
         "          'psycopg2-binary'," \
         "          'pymongo'," \
         "          'sqlalchemy'," \
