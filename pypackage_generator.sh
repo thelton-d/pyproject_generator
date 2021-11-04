@@ -639,7 +639,7 @@ docker_pytorch() {
     printf "%b\n" \
         "FROM nvcr.io/nvidia/pytorch:21.09-py3" \
         "" \
-        "ENV TORCH_HOME=/usr/src/warehouse/cache" \
+        "ENV TORCH_HOME=/usr/src/${MAIN_DIR}/cache" \
         "" \
         "WORKDIR /usr/src/${MAIN_DIR}" \
         "" \
@@ -1444,7 +1444,7 @@ readme() {
         "\`\`\`" \
         "" \
         "## Dependencies" \
-        "Since the Backpack utilizes optimized Docker images there are separate" \
+        "Since the ${SRC_DIR} utilizes optimized Docker images there are separate" \
         "requirements files for each framework." \
         "- \`requirements_pytorch.txt\`" \
         "- \`requirements_tensorflow.txt\`" \
