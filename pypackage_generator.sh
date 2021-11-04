@@ -959,7 +959,7 @@ makefile() {
         "\tdocker container exec \$(PROJECT)_python \\\\" \
         "\t\t/bin/bash -c \\\\" \
         "\t\t\t\"cd docs \\\\" \
-        "\t\t\t rm -rf * \\\\" \
+        "\t\t\t && rm -rf * \\\\" \
         "\t\t\t && sphinx-quickstart -q \\\\" \
         "\t\t\t\t-p \$(PROJECT) \\\\" \
         "\t\t\t\t-a \"${AUTHOR}\" \\\\" \
