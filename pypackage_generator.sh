@@ -605,11 +605,12 @@ docker_compose_tensorflow() {
 
 docker_ignore() {
     printf "%s\n" \
+        "data" \
+        "docker/secrets" \
         "*.egg-info" \
         ".git" \
         ".idea" \
         ".pytest_cache" \
-        "docker/secrets" \
         ".pytest" \
         "" \
         > "${MAIN_DIR}${FILE_SEP}.dockerignore"
