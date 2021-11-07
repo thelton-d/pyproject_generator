@@ -1609,17 +1609,9 @@ setup_cfg() {
         "    --cov-report html" \
         "    --doctest-modules" \
         "    --ff" \
-        "    --ignore" \
-        "        data" \
-        "        docker" \
-        "        docs" \
-        "        htmlcov" \
-        "        notebooks" \
-        "        profiles" \
-        "        wheels" \
-        "    --ignore-glob" \
-        "        docs/*" \
         "    --pycodestyle" \
+        "testpaths =" \
+        "    ${MAIN_DIR}" \
         "" \
         > "${MAIN_DIR}${FILE_SEP}setup.cfg"
 }
