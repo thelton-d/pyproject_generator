@@ -638,7 +638,7 @@ docker_python() {
 
 docker_pytorch() {
     printf "%b\n" \
-        "FROM nvcr.io/nvidia/pytorch:21.09-py3" \
+        "FROM nvcr.io/nvidia/pytorch:21.10-py3" \
         "" \
         "ENV TORCH_HOME=/usr/src/${MAIN_DIR}/cache" \
         "" \
@@ -666,7 +666,7 @@ docker_pytorch() {
 
 docker_tensorflow() {
     printf "%b\n" \
-        "FROM nvcr.io/nvidia/tensorflow:21.09-tf2-py3" \
+        "FROM nvcr.io/nvidia/tensorflow:21.10-tf2-py3" \
         "" \
         "WORKDIR /usr/src/${SOURCE_DIR}" \
         "" \
